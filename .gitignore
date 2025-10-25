@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+.env
+.env.local
+supabase/.temp
+supabase/.branches
+coverage
+.DS_Store
+.vscode
