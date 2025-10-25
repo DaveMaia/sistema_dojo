@@ -1,0 +1,53 @@
+{
+  "name": "sistema_dojo",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:setup": "tsx scripts/dbSetup.ts",
+    "seed": "tsx scripts/seed.ts",
+    "webhook:dev": "tsx scripts/webhookDev.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.5",
+    "@tanstack/react-query": "^5.51.23",
+    "clsx": "^2.1.1",
+    "date-fns": "^2.30.0",
+    "date-fns-tz": "^2.0.1",
+    "jose": "^5.8.0",
+    "next": "^14.2.5",
+    "qrcode": "^1.5.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "swr": "^2.2.5",
+    "tailwind-merge": "^2.3.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@supabase/postgrest-js": "^1.12.2",
+    "@tailwindcss/forms": "^0.5.7",
+    "@testing-library/jest-dom": "^6.4.3",
+    "@testing-library/react": "^14.3.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^20.14.11",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.5",
+    "jsdom": "^27.0.1",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.7",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4",
+    "vite-tsconfig-paths": "^5.1.2",
+    "vitest": "^1.6.0"
+  }
+}

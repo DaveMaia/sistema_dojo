@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title>Sistema Dojo</title>
+  <desc>Minimal icon with a belt knot representing a martial arts academy.</desc>
+  <defs>
+    <linearGradient id="belt" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#22d3ee" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="#020617" />
+  <path d="M20 58h88v12H20z" fill="url(#belt)" />
+  <path d="M64 70c14 0 30 12 44 36H20c14-24 30-36 44-36z" fill="#0ea5e9" opacity="0.75" />
+  <path d="M32 32h64l-16 26H48z" fill="#38bdf8" opacity="0.9" />
+  <circle cx="64" cy="64" r="10" fill="#f8fafc" />
+  <path d="M54 62h20v4H54z" fill="#020617" />
+</svg>
