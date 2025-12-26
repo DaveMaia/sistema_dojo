@@ -10,6 +10,7 @@ export interface Student {
   health_notes: string | null;
   status: 'ACTIVE' | 'INACTIVE';
   photo_url: string | null;
+  class_id: string | null;
   created_at: string;
 }
 
