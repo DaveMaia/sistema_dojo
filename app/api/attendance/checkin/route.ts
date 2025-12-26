@@ -26,6 +26,7 @@ export async function POST(request: Request) {
       class_type: 'AULA',
       instructor_user_id: null,
       source: 'QR',
+      checked_in_at: new Date().toISOString(),
       jti,
     });
     if (error) {

@@ -1,0 +1,128 @@
+version: '3.9'
+
+services:
+  db:
+    image: supabase/postgres:15.1.0.117
+    container_name: sistema_dojo_db
+    ports:
+      - '54322:5432'
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./supabase/migrations:/docker-entrypoint-initdb.d
+
+  auth:
+    image: supabase/gotrue:v2.158.0
+    container_name: sistema_dojo_auth
+    depends_on:
+      - db
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
+      GOTRUE_SITE_URL: http://localhost:3000
+      GOTRUE_JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_DISABLE_SIGNUP: 'false'
+      GOTRUE_MAILER_AUTOCONFIRM: 'true'
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: 'false'
+      GOTRUE_EXTERNAL_PHONE_ENABLED: 'false'
+      GOTRUE_SMTP_HOST: mail
+      GOTRUE_SMTP_PORT: 2500
+      GOTRUE_SMTP_USER: root
+      GOTRUE_SMTP_PASS: root
+      GOTRUE_SMTP_ADMIN_EMAIL: admin@example.com
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_INVITE: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_RECOVERY: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: /auth/v1/verify
+
+  rest:
+    image: postgrest/postgrest:v12.0.2
+    container_name: sistema_dojo_rest
+    depends_on:
+      - db
+    environment:
+      PGRST_DB_URI: postgres://postgres:postgres@db:5432/postgres
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters
+      PGRST_DB_SCHEMA: public,storage,auth
+      PGRST_SERVER_PORT: 3000
+
+  realtime:
+    image: supabase/realtime:v2.27.5
+    container_name: sistema_dojo_realtime
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
+      DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
+      REPLICATION_MODE: RLS
+      JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters
+      PORT: 4000
+
+  storage:
+    image: supabase/storage-api:v1.8.1
+    container_name: sistema_dojo_storage
+    depends_on:
+      - db
+      - rest
+    env_file:
+      - .env.docker
+    environment:
+      ANON_KEY: ${SUPABASE_ANON_KEY}
+      SERVICE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+    volumes:
+      - storage_data:/var/lib/storage
+
+  kong:
+    image: kong:2.8.1
+    container_name: sistema_dojo_kong
+    depends_on:
+      - rest
+      - auth
+      - realtime
+      - storage
+    ports:
+      - '8000:8000'
+    environment:
+      KONG_DATABASE: 'off'
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PLUGINS: cors,key-auth,acl
+      KONG_ADMIN_LISTEN: 'off'
+    volumes:
+      - ./docker/kong.yml:/kong/declarative/kong.yml:ro
+
+  app:
+    build: .
+    container_name: sistema_dojo_app
+    depends_on:
+      - kong
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env.docker
+    environment:
+      NODE_ENV: production
+      SUPABASE_URL: http://kong:8000
+      NEXT_PUBLIC_SUPABASE_URL: http://localhost:8000
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+
+volumes:
+  db_data:
+  storage_data:
