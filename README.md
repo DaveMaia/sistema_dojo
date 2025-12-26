@@ -1,102 +1,51 @@
-# Sistema Dojo — MVP SaaS Academia de Jiu-Jitsu
+# Sistema Dojo — SaaS para Academias de Jiu-Jitsu (Stack Local com Docker)
 
-### 🟢 Como usar este sistema (bem fácil!)
+## Visão geral
+Plataforma para academias com alunos, **PIX**, presença por **QR**, agenda de aulas,
+**torneios**, recados, dashboards administrativos e módulos de professor/aluno.
 
-**O que é isso?**
-Um site para academias de jiu-jitsu: alunos, **PIX**, presença com **QR**, aulas, **torneio mata-mata**, recados e mensagens.
+Este repositório está configurado para rodar **100% local** com **Docker Compose**,
+incluindo banco PostgreSQL e serviços Supabase (Auth, REST, Realtime, Storage) atrás do Kong.
 
-**1) Você precisa:**
+## 🧱 Stack local (recomendada)
+**Pré-requisitos**
+- Docker + Docker Compose
 
-* Uma conta grátis no **Supabase** (nosso “banquinho”).
-* O **Node.js** no computador.
+**Subir tudo com um comando**
+```bash
+docker compose up --build
+```
 
-**2) Baixar e abrir**
+**Acessos**
+- App: http://localhost:3000
+- API Supabase (Kong): http://localhost:8000
+- Postgres: localhost:54322 (user: postgres / pass: postgres)
 
-* Baixe o projeto e abra no **VS Code**.
+> As migrações SQL em `supabase/migrations` são aplicadas automaticamente no boot do Postgres.
 
-**3) Ligar com o Supabase**
-
-1. Crie um **projeto** no site do Supabase.
-2. Pegue **URL** e **ANON KEY**.
-3. Copie `.env.example` para `.env`.
-4. Cole a URL em `NEXT_PUBLIC_SUPABASE_URL` e a ANON KEY em `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-5. Deixe `WHATSAPP_ENABLED=false`.
-
-**4) Instalar e rodar**
+## 🧪 Desenvolvimento sem Docker (opcional)
+Se preferir rodar só o app localmente com Node:
 
 ```bash
 npm install
-npm run db:setup
 npm run dev
 ```
 
-Abra **[http://localhost:3000](http://localhost:3000)**.
+Você precisará de um Supabase acessível e variáveis em `.env` compatíveis.
 
-**5) Criar sua academia**
+## 🔑 Variáveis de ambiente
+Para Docker, usamos `.env.docker` (já fornecido).
+Para rodar fora do Docker, copie `.env.example` para `.env` e configure:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-* Clique em **Criar conta** e entre.
-* Clique em **Criar minha academia** (você vira **ADMIN**).
+## 📦 O que já está incluído
+- **Dashboard Admin** com indicadores (MRR, churn, inadimplência).
+- **Módulo do Professor** (scanner de presença, radar do aluno, badges e torneios).
+- **Experiência do Aluno** (navegação mobile-first, pagamentos, perfil social).
+- **Modelagens DB** para pagamentos com metadados, CRM de visitantes, badges e stats do aluno.
 
-**6) PIX (simples)**
-
-* Em **Configurações > Pagamentos (PIX)**, preencha sua **chave PIX**, **nome** e **cidade**.
-* Na **Área do Aluno > Pagamentos**, clique em **Gerar PIX** → aparece **QR** e **copia e cola**.
-* Envie o **comprovante**. O **ADMIN** confirma e pronto!
-
-**7) Outras coisas legais**
-
-* **Presença**: gere seu **QR** e mostre ao instrutor.
-* **Agenda**: **Reserve** ou **Cancele** aulas.
-* **Torneio**: veja sua próxima luta e a **chave**.
-* **Graduação**: faixa atual, próximas e **histórico**.
-* **Recados**: leia o que o ADMIN escreveu.
-
-**8) Deu erro?**
-
-* Confira o `.env`.
-* Veja a mensagem no terminal.
-* Volte um passo e tente de novo.
-* Peça ajuda a um adulto. 🙂
-
----
-
-### ⚙️ Modo avançado (para pagamento automático no futuro)
-
-**O que é isso?**
-Aqui você prepara o sistema para **Pix Dinâmico com Webhook** de um **PSP** (pago).
-
-**Como testar de graça (sandbox):**
-
-1. Instale o **ngrok** e rode:
-
-   ```bash
-   ngrok http 3000
-   ```
-
-   Copie a URL pública (ex.: `https://algo.ngrok.io`).
-2. No `.env`, preencha:
-
-   ```
-   PIX_MODE=PROVIDER
-   PIX_PROVIDER=MOCK
-   PIX_ENV=sandbox
-   PUBLIC_WEBHOOK_URL=https://algo.ngrok.io/api/pix/webhook
-   WEBHOOK_SECRET=algum_segredo
-   ```
-3. Gere um pagamento e **simule** o webhook:
-
-   ````bash
-   curl -XPOST https://localhost:3000/api/pix/mock/INVOICE_ID/paid \
-     -H "Authorization: Bearer $WEBHOOK_SECRET"
-   ```
-   ````
-4. Veja no painel: a fatura muda para **PAID** automaticamente (sem comprovante).
-
-**Quando contratar um PSP de verdade:**
-
-* Troque `PIX_PROVIDER` para o provedor real (ex.: `GERENCIANET`)
-* Coloque as chaves do provedor nas variáveis de ambiente (documentadas no provedor)
-* Configure o webhook do provedor apontando para `PUBLIC_WEBHOOK_URL`
-* Pronto! O sistema marcará **pago** automaticamente quando o banco avisar. 🎉
-
-**Importante:** os provedores cobram por transação. No modo gratuito, use o fluxo com **comprovante**.
+## 📚 Manual de implementação
+Consulte o guia completo de implantação e operação no arquivo:
+**[`MANUAL_IMPLEMENTACAO.md`](./MANUAL_IMPLEMENTACAO.md)**.
